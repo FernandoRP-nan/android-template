@@ -27,6 +27,13 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        val apiKey: String = project.findProperty("TMDB_API_KEY") as String? ?: ""
+
+        buildConfigField(
+            "String",
+            "TMDB_API_KEY",
+            "\"$apiKey\""
+        )
     }
 
     buildTypes {
