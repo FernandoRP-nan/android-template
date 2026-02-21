@@ -1,3 +1,4 @@
+import java.util.Properties
 plugins {
     // Android application module
     alias(libs.plugins.android.application)
@@ -27,12 +28,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        val apiKey: String = project.findProperty("TMDB_API_KEY") as String? ?: ""
+        val localProperties = Properties()
+        localProperties.load(rootProject.file("local.properties").reader())
+        val tmdbKey = localProperties.getProperty("TMDB_API_KEY") ?: ""
 
         buildConfigField(
             "String",
             "TMDB_API_KEY",
-            "\"$apiKey\""
+            "\"$tmdbKey\""
         )
     }
 
@@ -54,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
@@ -86,6 +90,7 @@ dependencies {
     // Dependency Injection
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
     // Networking
     implementation(libs.retrofit)
@@ -95,6 +100,9 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
+
+    //Coil Images
+    implementation(libs.coil.compose)
 
     // Coroutines
     implementation(libs.coroutines.android)

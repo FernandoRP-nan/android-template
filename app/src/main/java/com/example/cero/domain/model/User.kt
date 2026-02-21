@@ -1,7 +1,9 @@
 package com.example.cero.domain.model
 
-data class User(
+
+data class Movie(
     val id: Int,
-    val name: String,
-    val email: String
+    val title: String,
+    val overview: String,
+    val posterUrl: String?
 )

@@ -1,9 +1,14 @@
 package com.example.cero.data.mapper
 
-import com.example.cero.data.local.UserEntity
-import com.example.cero.data.remote.UserDto
-import com.example.cero.domain.model.User
+import com.example.cero.data.remote.response.PopularMovie.MovieDto
+import com.example.cero.domain.model.Movie
 
-fun UserDto.toEntity() = UserEntity(id, name, email)
 
-fun UserEntity.toDomain() = User(id, name, email)
+fun MovieDto.toDomain(): Movie {
+    return Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        posterUrl = poster_path
+    )
+}
