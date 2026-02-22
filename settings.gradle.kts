@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Cero"
 include(":app")
- 
+include(":security")

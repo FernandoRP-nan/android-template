@@ -1,5 +1,6 @@
 package com.example.cero.data.remote.interceptor
-import com.example.cero.BuildConfig
+
+import com.example.cero.security.NativeKeys
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -13,7 +14,7 @@ class ApiKeyInterceptor @Inject constructor() : Interceptor {
         val newRequest = request.newBuilder()
             .addHeader(
                 "Authorization",
-                "Bearer ${BuildConfig.TMDB_API_KEY}"
+                "Bearer ${NativeKeys.getApiKey()}"
             )
             .addHeader("accept", "application/json")
             .build()

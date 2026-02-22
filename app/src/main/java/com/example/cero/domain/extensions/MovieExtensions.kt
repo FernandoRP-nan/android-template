@@ -1,9 +1,9 @@
 package com.example.cero.domain.extensions
 
-import com.example.cero.BuildConfig
 import com.example.cero.domain.model.Movie
+import com.example.cero.security.NativeKeys
 
-private const val IMAGE_BASE_URL = BuildConfig.IMAGE_BASE_URL
+private val IMAGE_BASE_URL = NativeKeys.getImageBaseUrl()
 
 val Movie.fullPosterUrl: String?
     get() = posterUrl?.let { "$IMAGE_BASE_URL$it" }

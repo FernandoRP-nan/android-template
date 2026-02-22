@@ -12,7 +12,9 @@ plugins {
 hilt {
     enableAggregatingTask = false
 }
-
+kapt {
+    correctErrorTypes = true
+}
 android {
     namespace = "com.example.cero"
     compileSdk = 34
@@ -28,34 +30,17 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
         val localProperties = Properties()
         localProperties.load(rootProject.file("local.properties").reader())
-        val tmdbKey = localProperties.getProperty("TMDB_API_KEY") ?: ""
-        val baseUrl = localProperties.getProperty("BASE_URL") ?: ""
-        val imageBaseUrl = localProperties.getProperty("IMAGE_BASE_URL") ?: ""
-
-        buildConfigField(
-            "String",
-            "TMDB_API_KEY",
-            "\"$tmdbKey\""
-        )
-
-        buildConfigField(
-            "String",
-            "BASE_URL",
-            "\"$baseUrl\""
-        )
-
-        buildConfigField(
-            "String",
-            "IMAGE_BASE_URL",
-            "\"$imageBaseUrl\""
-        )
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -127,4 +112,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    //C+
+    implementation(project(":security"))
 }
