@@ -28,14 +28,20 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +62,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -87,8 +94,11 @@ import kotlin.math.roundToInt
  * Top-level view orchestrating the entire lifecycle of a coffee order.
  * Connects the data models to the spatial drag-and-drop mechanics.
  */
+
+
 @Composable
 fun CoffeeOrderScreen() {
+    val scrollState = rememberScrollState()
     var appState by remember { mutableStateOf(AppState.BREWING) }
     val isBrewing = appState == AppState.BREWING
 
@@ -104,80 +114,111 @@ fun CoffeeOrderScreen() {
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val topPadding = screenHeight * 0.09f // Esto es el 10% de la pantalla
+    val screenHeight2 = LocalConfiguration.current.screenHeightDp.dp
+    val topSpacingPercentage = 0.12f // Esto equivale al 15% de la altura total
+
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // --- 1. AMBIENT BACKGROUND ---
-        GeometricCafeBackground(appState = appState, modifier = Modifier.fillMaxSize())
-
-        // --- 2. TOP SIZE SELECTOR ---
-        AnimatedVisibility(
-            visible = isBrewing,
+        Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 64.dp),
-            enter = fadeIn(tween(300)) + slideInVertically(initialOffsetY = { -50 }),
-            exit = fadeOut(tween(400)) + scaleOut(targetScale = 0.6f) + slideOutVertically(
-                targetOffsetY = { 200 })
-        ) {
-            AnimatedSizeSelector(
-                selectedSize = orderState.size,
-                onSizeSelected = { orderState = orderState.copy(size = it) }
-            )
-        }
-
-        // --- 3. ACTIVE INGREDIENTS BADGES ---
-        AnimatedVisibility(
-            visible = isBrewing && orderState.ingredients.isNotEmpty(),
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 140.dp)
+                .padding(top = 20.dp)
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp),
-            enter = fadeIn(tween(300)) + scaleIn(spring(dampingRatio = 0.55f)) + slideInVertically(
-                initialOffsetY = { -30 }),
-            exit = fadeOut(tween(200)) + scaleOut(targetScale = 0.8f)
+                .fillMaxHeight(0.6f),
+            contentAlignment = Alignment.TopCenter
         ) {
-            val groupedIngredients = orderState.ingredients.groupingBy { it }.eachCount()
-            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-            androidx.compose.foundation.layout.FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.spacedBy(0.dp),
-                modifier = Modifier.animateContentSize(
-                    spring(
-                        dampingRatio = 0.6f,
-                        stiffness = Spring.StiffnessMediumLow
-                    )
-                )
+            // --- 1. AMBIENT BACKGROUND ---
+            GeometricCafeBackground(appState = appState, modifier = Modifier.fillMaxSize())
+                // --- 2. TOP SIZE SELECTOR ---
+                AnimatedVisibility(
+                    modifier = Modifier,
+                    visible = isBrewing,
+                    enter = fadeIn(tween(300)) + slideInVertically(initialOffsetY = { -50 }),
+                    exit = fadeOut(tween(400)) + scaleOut(targetScale = 0.6f) + slideOutVertically(targetOffsetY = { 200 })
+                ) {
+                    Column (modifier = Modifier
+                    ){   AnimatedSizeSelector(
+                        selectedSize = orderState.size,
+                        onSizeSelected = { orderState = orderState.copy(size = it) }
+                    ) }
+
+                }
+
+
+            Column(
+                modifier = Modifier
+                    .padding(top = topPadding)
+
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
-                groupedIngredients.forEach { (ingredient, count) ->
-                    androidx.compose.runtime.key(ingredient.displayName) {
-                        ActiveIngredientChip(ingredient = ingredient, count = count, onRemove = {
-                            val updatedList = orderState.ingredients.toMutableList()
-                            updatedList.remove(ingredient)
-                            orderState = orderState.copy(ingredients = updatedList)
-                        })
+                // --- ESPACIO DINÁMICO ---
+                // Este Spacer solo existirá si hay ingredientes, manteniendo una separación
+                if (isBrewing && orderState.ingredients.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(14.dp))
+                }else{
+                    Spacer(modifier = Modifier.height(screenHeight * topSpacingPercentage))
+                }
+                // --- 3. ACTIVE INGREDIENTS BADGES ---
+                AnimatedVisibility(
+                    visible = isBrewing && orderState.ingredients.isNotEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    enter = fadeIn(tween(300)) + scaleIn(spring(dampingRatio = 0.55f)) + slideInVertically(initialOffsetY = { -30 }),
+                    exit = fadeOut(tween(200)) + scaleOut(targetScale = 0.8f)
+                ) {
+                    val groupedIngredients = orderState.ingredients.groupingBy { it }.eachCount()
+                    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                    androidx.compose.foundation.layout.FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                        modifier = Modifier.animateContentSize(
+                            spring(
+                                dampingRatio = 0.6f,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        )
+                    ) {
+                        groupedIngredients.forEach { (ingredient, count) ->
+                            androidx.compose.runtime.key(ingredient.displayName) {
+                                ActiveIngredientChip(ingredient = ingredient, count = count, onRemove = {
+                                    val updatedList = orderState.ingredients.toMutableList()
+                                    updatedList.remove(ingredient)
+                                    orderState = orderState.copy(ingredients = updatedList)
+                                })
+                            }
+                        }
                     }
                 }
+
+                // --- OTRO ESPACIO DINÁMICO ---
+                // Esto separa los badges del vaso solo cuando los badges están presentes
+                Spacer(modifier = Modifier.height(14.dp))
+                // --- 4. STAGING AREA (CUP) ---
+                Box(
+                    modifier = Modifier
+                        .onGloballyPositioned { coordinates ->
+                            cupDropZoneBounds = coordinates.boundsInRoot()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    MorphingCoffeeCup(
+                        coffeeSize = orderState.size,
+                        ingredientCount = orderState.ingredients.size,
+                        appState = appState,
+                        orderState = orderState
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+
             }
         }
 
-        // --- 4. STAGING AREA (CUP / LOADER / RECEIPT) ---
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .offset(y = (-40).dp)
-                .onGloballyPositioned { coordinates ->
-                    cupDropZoneBounds = coordinates.boundsInRoot()
-                }
-        ) {
-            MorphingCoffeeCup(
-                coffeeSize = orderState.size,
-                ingredientCount = orderState.ingredients.size,
-                appState = appState,
-                orderState = orderState
-            )
-        }
 
         // --- 5. SCRIM ---
         AnimatedVisibility(

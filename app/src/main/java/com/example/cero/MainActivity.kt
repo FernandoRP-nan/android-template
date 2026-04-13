@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.cero.feature.coffe.presentation.view.CoffeeOrderScreen
+import com.example.cero.feature.movies.presentation.view.MovieScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -13,7 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            CoffeeOrderScreen()
+           // CoffeeOrderScreen()
+            MovieScreen()
         }
     }
 }
