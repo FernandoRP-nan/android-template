@@ -34,7 +34,7 @@ App Android modular en **Kotlin** y **Jetpack Compose**: catálogo de películas
 ## Estructura del proyecto
 
 ```
-android-template/
+cero-peliculas-compose/
 ├── app/                    # Módulo principal (Compose)
 │   └── feature/
 │       ├── movies/         # TMDB — películas populares
@@ -64,8 +64,8 @@ android-template/
 ### 1. Clonar y abrir
 
 ```bash
-git clone https://github.com/FernandoRP-nan/android-template.git
-cd android-template
+git clone https://github.com/FernandoRP-nan/cero-peliculas-compose.git
+cd cero-peliculas-compose
 git checkout aplicacionPeliculas
 ```
 
