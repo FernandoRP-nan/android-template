@@ -5,7 +5,7 @@ import com.example.cero.core.network.NetworkMonitor
 import com.example.cero.core.network.NetworkMonitorImpl
 import com.example.cero.data.remote.api.MovieApi
 import com.example.cero.data.remote.interceptor.ApiKeyInterceptor
-import com.example.cero.security.NativeKeys
+import com.example.cero.core.config.TmdbConfig
 import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
@@ -46,7 +46,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl(NativeKeys.getBaseUrl())
+            .baseUrl(TmdbConfig.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

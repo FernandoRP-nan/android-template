@@ -1,0 +1,5 @@
+# Copia este archivo como local.properties (no se sube a Git).
+sdk.dir=/ruta/a/Android/Sdk
+
+# Token de lectura v4 desde https://www.themoviedb.org/settings/api
+TMDB_API_KEY=
